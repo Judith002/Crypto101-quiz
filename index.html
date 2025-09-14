@@ -1,0 +1,768 @@
+
+
+index.html
+
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crypto 101 Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f3f4f6;
+            color: #1f2937;
+        }
+    </style>
+</head>
+<body class="flex items-center justify-center min-h-screen p-4">
+
+    <div id="quiz-container" class="bg-white p-8 rounded-lg shadow-xl max-w-2xl w-full">
+        <h1 class="text-3xl font-bold text-center text-indigo-600 mb-2">Crypto 101 Quiz</h1>
+        <p class="text-center text-gray-500 mb-8">Answer all 50 questions. Your score will be shown at the end.</p>
+
+        <!-- Quiz Interface -->
+        <div id="quiz-questions" class="space-y-6">
+            <p id="progress" class="text-sm text-gray-400 text-center mb-4">Question 1 of 50</p>
+            <div id="question-box" class="bg-gray-50 p-6 rounded-lg border border-gray-200">
+                <p id="question-text" class="text-lg font-semibold mb-4 text-gray-800"></p>
+                <form id="options-form" class="space-y-3">
+                    <!-- Radio buttons will be inserted here by JavaScript -->
+                </form>
+            </div>
+            <button id="next-button" class="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-200">
+                Next
+            </button>
+        </div>
+
+        <!-- Result Screen -->
+        <div id="quiz-results" class="hidden text-center space-y-6">
+            <h2 id="score-text" class="text-3xl font-bold text-indigo-600"></h2>
+            <div id="answer-key" class="bg-gray-50 p-6 rounded-lg text-left max-h-96 overflow-y-auto border border-gray-200">
+                <h3 class="text-xl font-bold mb-4 text-gray-800">Answer Key</h3>
+                <ul id="answer-key-list" class="space-y-3 text-gray-700"></ul>
+            </div>
+            <button id="restart-button" class="w-full bg-gray-500 hover:bg-gray-600 text-white font-bold py-3 px-4 rounded-lg focus:outline-none focus:shadow-outline transition-colors duration-200">
+                Restart Quiz
+            </button>
+        </div>
+        
+        <!-- Error/Message Box -->
+        <div id="message-box" class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden items-center justify-center p-4">
+            <div class="bg-white p-6 rounded-lg shadow-2xl text-center max-w-sm w-full">
+                <p id="message-text" class="mb-4 text-gray-800 font-medium"></p>
+                <button id="close-message" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition-colors duration-200">
+                    OK
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const quizData = [
+                {
+                    question: "What is cryptocurrency?",
+                    options: [
+                        { text: "A decentralized digital currency", isCorrect: true },
+                        { text: "A type of physical cash used for online purchases", isCorrect: false },
+                        { text: "A government-issued currency", isCorrect: false },
+                        { text: "A traditional stock market investment", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the primary purpose of a blockchain?",
+                    options: [
+                        { text: "To store private user data on a central server", isCorrect: false },
+                        { text: "To serve as a secure, decentralized digital ledger", isCorrect: true },
+                        { text: "To process credit card payments", isCorrect: false },
+                        { text: "To create video games", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the term for a blockchain used for testing without real value?",
+                    options: [
+                        { text: "Mainnet", isCorrect: false },
+                        { text: "Testnet", isCorrect: true },
+                        { text: "Devnet", isCorrect: false },
+                        { text: "Stagenet", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'HODL' a common typo for?",
+                    options: [
+                        { text: "HOLD", isCorrect: true },
+                        { text: "BLOCK", isCorrect: false },
+                        { text: "SELL", isCorrect: false },
+                        { text: "BUY", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Whale' in the context of cryptocurrency?",
+                    options: [
+                        { text: "A person who creates new tokens", isCorrect: false },
+                        { text: "Someone who holds large amounts of a cryptocurrency", isCorrect: true },
+                        { text: "A type of decentralized application", isCorrect: false },
+                        { text: "A new type of consensus mechanism", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the process of locking up crypto to earn rewards and secure a network?",
+                    options: [
+                        { text: "Mining", isCorrect: false },
+                        { text: "Staking", isCorrect: true },
+                        { text: "Yield Farming", isCorrect: false },
+                        { text: "Swapping", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does 'DApp' stand for?",
+                    options: [
+                        { text: "Digital App", isCorrect: false },
+                        { text: "Decentralized Application", isCorrect: true },
+                        { text: "Direct Application", isCorrect: false },
+                        { text: "Development Application", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Wallet' in the crypto space?",
+                    options: [
+                        { text: "A physical container for coins", isCorrect: false },
+                        { text: "A digital place to store your crypto", isCorrect: true },
+                        { text: "A type of crypto exchange", isCorrect: false },
+                        { text: "A financial institution", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the name for the economic design of a crypto token?",
+                    options: [
+                        { text: "Tokenomics", isCorrect: true },
+                        { text: "Cryptonomics", isCorrect: false },
+                        { text: "Block-nomics", isCorrect: false },
+                        { text: "Financemics", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does 'DeFi' stand for?",
+                    options: [
+                        { text: "Digital Finance", isCorrect: false },
+                        { text: "Decentralized Finance", isCorrect: true },
+                        { text: "Definitive Finance", isCorrect: false },
+                        { text: "Development Finance", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Wrapped Token'?",
+                    options: [
+                        { text: "A new, untradable token", isCorrect: false },
+                        { text: "A tokenized version of a coin usable on other chains", isCorrect: true },
+                        { text: "A token stored in a private wallet", isCorrect: false },
+                        { text: "A token tied to a specific project", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the term for earning returns by providing liquidity or staking in DeFi?",
+                    options: [
+                        { text: "Mining", isCorrect: false },
+                        { text: "Day Trading", isCorrect: false },
+                        { text: "Yield Farming", isCorrect: true },
+                        { text: "ICO", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does 'NFT' stand for?",
+                    options: [
+                        { text: "Non-Fungible Token", isCorrect: true },
+                        { text: "Non-Financial Transaction", isCorrect: false },
+                        { text: "New Finance Technology", isCorrect: false },
+                        { text: "Network Function Token", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Gas Fee'?",
+                    options: [
+                        { text: "The cost to store crypto in a wallet", isCorrect: false },
+                        { text: "The fee paid to an exchange for a trade", isCorrect: false },
+                        { text: "The computational fee for a blockchain transaction", isCorrect: true },
+                        { text: "A tax on cryptocurrency profits", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Volatile'?",
+                    options: [
+                        { text: "How fast a transaction is processed", isCorrect: false },
+                        { text: "How much a coin's price fluctuates", isCorrect: true },
+                        { text: "The security of a blockchain network", isCorrect: false },
+                        { text: "The number of users on a platform", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Validator'?",
+                    options: [
+                        { text: "A participant who helps confirm transactions and secure PoS blockchains", isCorrect: true },
+                        { text: "A person who audits a company's finances", isCorrect: false },
+                        { text: "A type of DeFi protocol", isCorrect: false },
+                        { text: "A token issuer", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'WAGMI' an acronym for?",
+                    options: [
+                        { text: "We Are Great Members of the Internet", isCorrect: false },
+                        { text: "We're All Gonna Make It", isCorrect: true },
+                        { text: "When A Great Move Is", isCorrect: false },
+                        { text: "We're All Going Mainnet", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the term for a smart contract that lets you trade cryptocurrencies?",
+                    options: [
+                        { text: "Token", isCorrect: false },
+                        { text: "Swap", isCorrect: false },
+                        { text: "Automated Market Maker (AMM)", isCorrect: true },
+                        { text: "Wallet", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Liquidity Pool'?",
+                    options: [
+                        { text: "A pool of funds for a single user", isCorrect: false },
+                        { text: "A collection of funds locked in a smart contract for trading", isCorrect: true },
+                        { text: "A crypto-mining facility", isCorrect: false },
+                        { text: "A type of blockchain validator", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the name for the event where a new token is officially launched?",
+                    options: [
+                        { text: "Token Generation Event (TGE)", isCorrect: true },
+                        { text: "Initial Public Offering (IPO)", isCorrect: false },
+                        { text: "Initial Coin Offering (ICO)", isCorrect: false },
+                        { text: "Coin Launch Event (CLE)", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the term for a decentralized exchange?",
+                    options: [
+                        { text: "CEX", isCorrect: false },
+                        { text: "DEX", isCorrect: true },
+                        { text: "BEX", isCorrect: false },
+                        { text: "LEX", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the 'Unlock Schedule' for a token?",
+                    options: [
+                        { text: "The timeline for token release to early investors/team", isCorrect: true },
+                        { text: "The schedule for new airdrops", isCorrect: false },
+                        { text: "The plan to list a token on an exchange", isCorrect: false },
+                        { text: "The process of a token being unlocked from a wallet", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Bitcoin Halving'?",
+                    options: [
+                        { text: "The event that doubles the Bitcoin block reward", isCorrect: false },
+                        { text: "The event that reduces the Bitcoin block reward by half", isCorrect: true },
+                        { text: "A software update to the Bitcoin network", isCorrect: false },
+                        { text: "A type of Bitcoin scam", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does 'DAO' stand for?",
+                    options: [
+                        { text: "Digital Asset Organization", isCorrect: false },
+                        { text: "Decentralized Autonomous Organization", isCorrect: true },
+                        { text: "Distributed Asset Ownership", isCorrect: false },
+                        { text: "Direct Autonomous Operation", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Consensus Mechanism'?",
+                    options: [
+                        { text: "A software update to a blockchain", isCorrect: false },
+                        { text: "The mechanism for agreeing on the state of the blockchain", isCorrect: true },
+                        { text: "A protocol for peer-to-peer messaging", isCorrect: false },
+                        { text: "A tool for creating NFTs", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the process of providing crypto to an exchange for a period of time to create market depth?",
+                    options: [
+                        { text: "Staking", isCorrect: false },
+                        { text: "Liquidity Providing", isCorrect: true },
+                        { text: "Mining", isCorrect: false },
+                        { text: "Gas Fee", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'FUD'?",
+                    options: [
+                        { text: "Fair Use of Data", isCorrect: false },
+                        { text: "Fear, Uncertainty, and Doubt", isCorrect: true },
+                        { text: "Financial Utility Development", isCorrect: false },
+                        { text: "Fundamental Use Data", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Arbitrage'?",
+                    options: [
+                        { text: "Buying a coin and holding it long-term", isCorrect: false },
+                        { text: "The process of using bots for crypto trading", isCorrect: false },
+                        { text: "Profiting from price differences of the same asset on different exchanges", isCorrect: true },
+                        { text: "Lending a token to earn interest", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Peer-to-Peer' (P2P) transaction?",
+                    options: [
+                        { text: "A transaction that requires a central bank", isCorrect: false },
+                        { text: "A transaction between two individuals without an intermediary", isCorrect: true },
+                        { text: "A transaction using a traditional banking system", isCorrect: false },
+                        { text: "A transaction on a private blockchain", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the term for a cryptocurrency's price when it has fallen to a new low?",
+                    options: [
+                        { text: "All-Time High (ATH)", isCorrect: false },
+                        { text: "Bottom", isCorrect: true },
+                        { text: "Breakout", isCorrect: false },
+                        { text: "Bull Run", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Proof-of-Work' (PoW)?",
+                    options: [
+                        { text: "A consensus mechanism where participants use their computing power to mine new blocks", isCorrect: true },
+                        { text: "A way to prove your work experience in crypto", isCorrect: false },
+                        { text: "A security measure for crypto wallets", isCorrect: false },
+                        { text: "A method to earn rewards by staking tokens", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Proof-of-Stake' (PoS)?",
+                    options: [
+                        { text: "A consensus mechanism where participants validate transactions and earn rewards by locking up their crypto", isCorrect: true },
+                        { text: "A proof that a transaction has been successfully sent", isCorrect: false },
+                        { text: "A security protocol for a blockchain", isCorrect: false },
+                        { text: "A method for creating a new token", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Rug Pull'?",
+                    options: [
+                        { text: "A security update to a DeFi protocol", isCorrect: false },
+                        { text: "A type of crypto hack where the developers drain funds from a project", isCorrect: true },
+                        { text: "A sudden increase in a coin's price", isCorrect: false },
+                        { text: "A meme coin launch", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the term for the process of validating transactions and securing the network on a PoS blockchain?",
+                    options: [
+                        { text: "Mining", isCorrect: false },
+                        { text: "Staking", isCorrect: true },
+                        { text: "Swapping", isCorrect: false },
+                        { text: "Farming", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'All-Time High' (ATH)?",
+                    options: [
+                        { text: "The lowest price a cryptocurrency has ever reached", isCorrect: false },
+                        { text: "The highest price a cryptocurrency has ever reached", isCorrect: true },
+                        { text: "The total number of coins in circulation", isCorrect: false },
+                        { text: "The price of a token at launch", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the term for the total assets deposited in DeFi protocols?",
+                    options: [
+                        { text: "Market Capitalization (MC)", isCorrect: false },
+                        { text: "Total Value Locked (TVL)", isCorrect: true },
+                        { text: "Liquidity Pool (LP)", isCorrect: false },
+                        { text: "Blockchain Volume (BV)", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Stablecoin'?",
+                    options: [
+                        { text: "A cryptocurrency with a volatile price", isCorrect: false },
+                        { text: "A cryptocurrency pegged to a stable asset like a fiat currency", isCorrect: true },
+                        { text: "A new type of decentralized application", isCorrect: false },
+                        { text: "A token used for governance", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does 'Swap' mean in the crypto world?",
+                    options: [
+                        { text: "To buy an NFT", isCorrect: false },
+                        { text: "To trade one token for another using a DEX", isCorrect: true },
+                        { text: "To sell all your crypto assets", isCorrect: false },
+                        { text: "To transfer funds to a different wallet", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Halving' a key event for?",
+                    options: [
+                        { text: "Ethereum", isCorrect: false },
+                        { text: "Solana", isCorrect: false },
+                        { text: "Bitcoin", isCorrect: true },
+                        { text: "Stablecoins", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does 'Wen' mean in crypto slang?",
+                    options: [
+                        { text: "Where", isCorrect: false },
+                        { text: "When", isCorrect: true },
+                        { text: "Why", isCorrect: false },
+                        { text: "Who", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the most active social platform for crypto news and updates mentioned in the material?",
+                    options: [
+                        { text: "Facebook", isCorrect: false },
+                        { text: "Instagram", isCorrect: false },
+                        { text: "Telegram", isCorrect: false },
+                        { text: "X (formerly Twitter)", isCorrect: true }
+                    ]
+                },
+                {
+                    question: "What is 'Airdrop'?",
+                    options: [
+                        { text: "The process of a new token being listed on an exchange", isCorrect: false },
+                        { text: "The act of a blockchain going offline", isCorrect: false },
+                        { text: "The distribution of a new token to wallet addresses for free", isCorrect: true },
+                        { text: "A method to earn rewards from staking", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Bull Run'?",
+                    options: [
+                        { text: "A period of decreasing crypto prices", isCorrect: false },
+                        { text: "A period of increasing crypto prices", isCorrect: true },
+                        { text: "A crypto trading strategy", isCorrect: false },
+                        { text: "The total supply of a cryptocurrency", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Bear Market'?",
+                    options: [
+                        { text: "A period where prices of assets are generally increasing", isCorrect: false },
+                        { text: "A period where prices of assets are generally decreasing", isCorrect: true },
+                        { text: "A type of decentralized exchange", isCorrect: false },
+                        { text: "A specific type of cryptocurrency", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Fungible'?",
+                    options: [
+                        { text: "A unique, non-interchangeable item", isCorrect: false },
+                        { text: "An asset that can be interchanged with another of the same type", isCorrect: true },
+                        { text: "A type of crypto wallet", isCorrect: false },
+                        { text: "A specific DeFi protocol", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'ZK-Rollup'?",
+                    options: [
+                        { text: "A type of cryptocurrency wallet", isCorrect: false },
+                        { text: "A scaling solution using zero-knowledge proofs for faster transactions", isCorrect: true },
+                        { text: "A method for creating a private blockchain", isCorrect: false },
+                        { text: "A way to prove ownership of an NFT", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Centralized Finance' (CeFi)?",
+                    options: [
+                        { text: "Financial services managed by an intermediary, like a bank or exchange", isCorrect: true },
+                        { text: "Financial services run on a decentralized blockchain", isCorrect: false },
+                        { text: "A type of cryptocurrency", isCorrect: false },
+                        { text: "A protocol for peer-to-peer lending", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the name for the timeline for token release to early investors/team?",
+                    options: [
+                        { text: "Release Schedule", isCorrect: false },
+                        { text: "Distribution Plan", isCorrect: false },
+                        { text: "Unlock Schedule", isCorrect: true },
+                        { text: "Vesting Plan", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Utility Token'?",
+                    options: [
+                        { text: "A token used only for value storage", isCorrect: false },
+                        { text: "A token used to access a product or service", isCorrect: true },
+                        { text: "A token that gives governance rights", isCorrect: false },
+                        { text: "A token with a fixed price", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Blockchain'?",
+                    options: [
+                        { text: "A single, centralized database for all financial transactions", isCorrect: false },
+                        { text: "A type of mobile app for trading stocks", isCorrect: false },
+                        { text: "A distributed, immutable digital ledger of transactions", isCorrect: true },
+                        { text: "A physical currency used in the digital world", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Centralized Exchange' (CEX)?",
+                    options: [
+                        { text: "An exchange that is run by a decentralized autonomous organization", isCorrect: false },
+                        { text: "A cryptocurrency exchange managed by a central entity", isCorrect: true },
+                        { text: "A platform for peer-to-peer trading only", isCorrect: false },
+                        { text: "A type of smart contract", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'DYOR' an acronym for?",
+                    options: [
+                        { text: "Do Your Own Research", isCorrect: true },
+                        { text: "Don't Yield On Rewards", isCorrect: false },
+                        { text: "Digital Yield Of Returns", isCorrect: false },
+                        { text: "Decentralized Your Options Right", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'DEX' an acronym for?",
+                    options: [
+                        { text: "Decentralized Exchange", isCorrect: true },
+                        { text: "Digital Exchange", isCorrect: false },
+                        { text: "Direct Exchange", isCorrect: false },
+                        { text: "Dynamic Exchange", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is a 'Stablecoin' designed to do?",
+                    options: [
+                        { text: "Generate high, volatile returns", isCorrect: false },
+                        { text: "Maintain a stable value, often pegged to a fiat currency", isCorrect: true },
+                        { text: "Increase in value over time", isCorrect: false },
+                        { text: "Serve as a governance token", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Bitcoin'?",
+                    options: [
+                        { text: "A physical gold coin", isCorrect: false },
+                        { text: "The first cryptocurrency and a decentralized digital currency", isCorrect: true },
+                        { text: "A type of government bond", isCorrect: false },
+                        { text: "A centralized digital payment system", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'HODL' used to describe?",
+                    options: [
+                        { text: "A long-term investment strategy of holding crypto", isCorrect: true },
+                        { text: "A quick trading strategy", isCorrect: false },
+                        { text: "A method of mining crypto", isCorrect: false },
+                        { text: "The process of a token launch", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What does 'NFT' typically represent?",
+                    options: [
+                        { text: "A standardized token", isCorrect: false },
+                        { text: "A unique digital asset like art or music", isCorrect: true },
+                        { text: "A share in a company", isCorrect: false },
+                        { text: "A form of centralized currency", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Gas Fee' used for on a blockchain?",
+                    options: [
+                        { text: "As a bonus for new users", isCorrect: false },
+                        { text: "To pay for the computation and transaction processing on the network", isCorrect: true },
+                        { text: "To purchase digital goods", isCorrect: false },
+                        { text: "To stake a token", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is 'Liquidity Providing'?",
+                    options: [
+                        { text: "Taking out a loan from a DeFi protocol", isCorrect: false },
+                        { text: "Adding funds to a liquidity pool to earn trading fees", isCorrect: true },
+                        { text: "Selling a large amount of a token", isCorrect: false },
+                        { text: "The process of a token being unlocked", isCorrect: false }
+                    ]
+                },
+                {
+                    question: "What is the term for profiting from the price difference of the same asset on different exchanges?",
+                    options: [
+                        { text: "Arbitrage", isCorrect: true },
+                        { text: "Hedging", isCorrect: false },
+                        { text: "Day trading", isCorrect: false },
+                        { text: "Staking", isCorrect: false }
+                    ]
+                }
+            ];
+
+            let shuffledQuestions = [];
+            let currentQuestionIndex = 0;
+            let score = 0;
+            let userAnswers = [];
+            const correctAnswers = [];
+
+            const quizContainer = document.getElementById('quiz-container');
+            const quizQuestionsEl = document.getElementById('quiz-questions');
+            const quizResultsEl = document.getElementById('quiz-results');
+            const questionTextEl = document.getElementById('question-text');
+            const optionsFormEl = document.getElementById('options-form');
+            const progressEl = document.getElementById('progress');
+            const nextButton = document.getElementById('next-button');
+            const restartButton = document.getElementById('restart-button');
+            const scoreTextEl = document.getElementById('score-text');
+            const answerKeyListEl = document.getElementById('answer-key-list');
+            const messageBox = document.getElementById('message-box');
+            const messageText = document.getElementById('message-text');
+            const closeMessageBtn = document.getElementById('close-message');
+
+            function shuffleArray(array) {
+                for (let i = array.length - 1; i > 0; i--) {
+                    const j = Math.floor(Math.random() * (i + 1));
+                    [array[i], array[j]] = [array[j], array[i]];
+                }
+                return array;
+            }
+
+            function initializeQuiz() {
+                shuffledQuestions = shuffleArray([...quizData]);
+                currentQuestionIndex = 0;
+                score = 0;
+                userAnswers = [];
+                correctAnswers.length = 0; // Clear the array
+
+                quizData.forEach((q, index) => {
+                    const correctOption = q.options.find(o => o.isCorrect);
+                    correctAnswers.push({
+                        questionNumber: index + 1,
+                        question: q.question,
+                        correctAnswer: correctOption.text
+                    });
+                });
+
+                showQuestion();
+                quizQuestionsEl.classList.remove('hidden');
+                quizResultsEl.classList.add('hidden');
+            }
+
+            function showQuestion() {
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    const currentQuestion = shuffledQuestions[currentQuestionIndex];
+                    questionTextEl.textContent = currentQuestion.question;
+                    progressEl.textContent = `Question ${currentQuestionIndex + 1} of ${shuffledQuestions.length}`;
+
+                    // Shuffle options for the current question
+                    const shuffledOptions = shuffleArray([...currentQuestion.options]);
+                    optionsFormEl.innerHTML = '';
+                    shuffledOptions.forEach((option, index) => {
+                        const optionId = `q${currentQuestionIndex}-option${index}`;
+                        const label = document.createElement('label');
+                        label.className = 'block relative py-3 px-4 rounded-lg cursor-pointer bg-white border border-gray-300 hover:bg-gray-100 transition-colors duration-200';
+                        label.innerHTML = `
+                            <input type="radio" name="question" value="${option.text}" data-is-correct="${option.isCorrect}" class="absolute opacity-0 pointer-events-none">
+                            <span class="text-sm font-medium text-gray-700">${String.fromCharCode(65 + index)}. ${option.text}</span>
+                        `;
+                        optionsFormEl.appendChild(label);
+                    });
+                    
+                } else {
+                    showResults();
+                }
+            }
+
+            function showMessage(text) {
+                messageText.textContent = text;
+                messageBox.classList.remove('hidden');
+                messageBox.classList.add('flex');
+            }
+
+            function hideMessage() {
+                messageBox.classList.add('hidden');
+                messageBox.classList.remove('flex');
+            }
+
+            function showResults() {
+                const finalScore = userAnswers.reduce((total, answer) => {
+                    const question = shuffledQuestions[answer.questionIndex];
+                    const correctOption = question.options.find(o => o.isCorrect);
+                    return total + (answer.selectedText === correctOption.text ? 1 : 0);
+                }, 0);
+                const percentage = Math.round((finalScore / quizData.length) * 100);
+                scoreTextEl.textContent = `Quiz Completed 🎉 You scored ${finalScore}/${quizData.length} (${percentage}%).`;
+                
+                answerKeyListEl.innerHTML = '';
+                correctAnswers.forEach((q, index) => {
+                    const li = document.createElement('li');
+                    const originalQuestion = quizData.find(item => item.question === q.question);
+                    const originalCorrectText = originalQuestion.options.find(o => o.isCorrect).text;
+                    
+                    const shuffledQuestion = shuffledQuestions[index];
+                    const shuffledOptions = optionsFormEl.querySelector('input[data-is-correct="true"]')?.parentElement;
+                    const correctOptionText = shuffledQuestion.options.find(o => o.isCorrect)?.text;
+                    const correctOptionElement = optionsFormEl.querySelector(`input[value="${correctOptionText}"]`);
+                    let correctOptionLetter = 'A'; // Default
+                    if (correctOptionElement) {
+                         const parentLabel = correctOptionElement.closest('label');
+                         if (parentLabel) {
+                             const parentIndex = Array.from(optionsFormEl.children).indexOf(parentLabel);
+                             correctOptionLetter = String.fromCharCode(65 + parentIndex);
+                         }
+                    }
+
+                    li.className = 'text-sm';
+                    li.innerHTML = `<span class="font-semibold text-gray-800">Q${index + 1}:</span> ${shuffledQuestion.question}<br>
+                                    <span class="text-green-600 font-medium">Correct Answer: ${correctOptionText}</span>`;
+                    answerKeyListEl.appendChild(li);
+                });
+
+                quizQuestionsEl.classList.add('hidden');
+                quizResultsEl.classList.remove('hidden');
+            }
+
+            nextButton.addEventListener('click', () => {
+                const selectedOption = optionsFormEl.querySelector('input[name="question"]:checked');
+                if (!selectedOption) {
+                    showMessage("Please select an answer before proceeding.");
+                    return;
+                }
+
+                userAnswers.push({
+                    questionIndex: currentQuestionIndex,
+                    selectedText: selectedOption.value
+                });
+
+                currentQuestionIndex++;
+                if (currentQuestionIndex < shuffledQuestions.length) {
+                    showQuestion();
+                } else {
+                    showResults();
+                }
+            });
+
+            restartButton.addEventListener('click', () => {
+                initializeQuiz();
+            });
+            
+            closeMessageBtn.addEventListener('click', () => {
+                hideMessage();
+            });
+
+            initializeQuiz();
+        });
+    </script>
+</body>
+</html>
+
